@@ -24,6 +24,14 @@ jobs:
         run: npm run lint:ci
       - name: format check
         run: npm run format:ci
+      - name: run tests
+        run: npm run test:ci
+      - uses: ./
+        with:
+          jobName: "lint-and-format-check"
+          stepName: "run tests"
+          path: "junit.xml"
+          type: "junit"
   update-dist:
     runs-on: ubuntu-latest
     needs: [lint]
@@ -34,7 +42,7 @@ jobs:
           node-version: "16"
           cache: "npm"
       - name: npm ci
-        run: npm ci --omit=dev --ignore-scripts
+        run: npm ci --ignore-scripts
       - name: tsc
         run: npm run package
       - name: commit dist
