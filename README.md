@@ -32,7 +32,7 @@ jobs:
           stepName: "run tests"
           path: "junit.xml"
           type: "junit"
-          githubToken: ${{ secretes.GITHUB_TOKEN }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 _otel-export-trace.yml_
