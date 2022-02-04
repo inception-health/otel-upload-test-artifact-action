@@ -26,11 +26,13 @@ jobs:
       - name: run tests
         run: npm run test:ci
       - uses: inception-health/otel-upload-test-artifact-action@latest
+        if: always()
         with:
           jobName: "lint-and-test"
           stepName: "run tests"
           path: "junit.xml"
           type: "junit"
+          githubToken: ${{ secretes.GITHUB_TOKEN }}
 ```
 
 _otel-export-trace.yml_
