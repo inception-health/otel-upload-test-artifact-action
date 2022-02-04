@@ -1,6 +1,6 @@
 # Open Telemetry Upload Test Artifact Action
 
-This action is a companion Action to [otel-export-trace-action](https://github.com/marketplace/actions/opentelemetry-export-trace). This Action will transform a Test report to an OpenTelemetry Trace file and Upload as a Github Artifact so that otel-export-trace-action can download and link to the Github Workflow step span that produced it before exporting to the OTLP destination.
+This action is a companion Action to [otel-export-trace-action](https://github.com/marketplace/actions/opentelemetry-export-trace). This Action will transform a Test Report to an OTLP Trace log file and Upload as a Github Artifact so that otel-export-trace-action can download and link to the Github Workflow step span that produced it before exporting to the OTLP destination.
 
 ## Usage
 
@@ -99,4 +99,6 @@ jobs:
 | test.failure.{index}.type    | string  | Test Failure Type                        |
 | test.failure.{index}.inner   | string  | Test Failure System Out                  |
 
-## Honeycomb Example Trace
+# Limitations
+
+Currently only supports Junit Test Reports

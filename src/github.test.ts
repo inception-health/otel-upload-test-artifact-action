@@ -8,8 +8,6 @@ import {
 import { Octokit } from "@octokit/rest";
 import { Context } from "@actions/github/lib/context";
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
-import * as fs from "fs";
-import * as path from "path";
 import { mock, mockDeep } from "jest-mock-extended";
 import * as artifact from "@actions/artifact";
 
@@ -76,31 +74,41 @@ describe("github.ts", () => {
 
   describe("uploadTraceLogArtifact", () => {
     let mockArtifactClient: artifact.ArtifactClient;
+    const jobName = "lint-and-format-check";
+    const stepName = "run tests";
+    const filePath = "trace.log";
+
     beforeEach(() => {
       mockArtifactClient = mockDeep<artifact.ArtifactClient>();
     });
 
     it("successfully uploads artifact", async () => {
-      (
+      const mockUploadArtifact =
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         mockArtifactClient.uploadArtifact as jest.MockedFunction<
           typeof mockArtifactClient.uploadArtifact
-        >
-      ).mockResolvedValue(
+        >;
+      mockUploadArtifact.mockResolvedValue(
         mock<artifact.UploadResponse>({
           failedItems: [],
         })
       );
       await uploadTraceLogArtifact({
-        jobName: "lint-and-format-check",
-        stepName: "run tests",
-        path: "trace.log",
+        jobName,
+        stepName,
+        path: filePath,
         artifactClient: mockArtifactClient,
       });
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mockUploadArtifact).toBeCalledWith(
+        `{${jobName}}{${stepName}}`,
+        [filePath],
+        "."
+      );
     });
 
     it("throws error when upload fails", async () => {
-      const jobName = "lint-and-format-check";
-      const stepName = "run tests";
       (
         mockArtifactClient.uploadArtifact as jest.MockedFunction<
           typeof mockArtifactClient.uploadArtifact
@@ -115,7 +123,7 @@ describe("github.ts", () => {
         uploadTraceLogArtifact({
           jobName,
           stepName,
-          path: "trace.log",
+          path: filePath,
           artifactClient: mockArtifactClient,
         })
       ).rejects.toThrowError();
