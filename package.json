@@ -1,7 +1,7 @@
 {
   "name": "otel-upload-test-artifact-action",
   "version": "0.1.0",
-  "description": "",
+  "description": "Action that Uploads OTLP log file to GH Artifact",
   "main": "lib/index.js",
   "scripts": {
     "prepare": "husky install",
