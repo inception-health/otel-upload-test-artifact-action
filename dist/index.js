@@ -147,7 +147,7 @@ async function run() {
             return;
         }
         const startTime = new Date(step.started_at);
-        core.info(`Trace Test file`);
+        core.info("Trace Test file");
         if (type === "junit") {
             await (0, trace_junit_1.traceJunitArtifact)({
                 trace: api_1.trace,
@@ -156,8 +156,9 @@ async function run() {
                 startTime,
             });
         }
+        core.info("Flush Otel Provider to WriteStream");
         await provider.forceFlush();
-        core.info(`Upload OTLP Trace Log`);
+        core.info("Upload OTLP Trace Log");
         await (0, github_1.uploadTraceLogArtifact)({
             jobName,
             stepName,

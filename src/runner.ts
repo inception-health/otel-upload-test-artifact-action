@@ -51,7 +51,7 @@ export async function run() {
       return;
     }
     const startTime = new Date(step.started_at);
-    core.info(`Trace Test file`);
+    core.info("Trace Test file");
     if (type === "junit") {
       await traceJunitArtifact({
         trace,
@@ -61,9 +61,10 @@ export async function run() {
       });
     }
 
+    core.info("Flush Otel Provider to WriteStream");
     await provider.forceFlush();
 
-    core.info(`Upload OTLP Trace Log`);
+    core.info("Upload OTLP Trace Log");
     await uploadTraceLogArtifact({
       jobName,
       stepName,
