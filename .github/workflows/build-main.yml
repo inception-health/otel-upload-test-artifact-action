@@ -27,6 +27,7 @@ jobs:
       - name: run tests
         run: npm run test:ci
       - uses: ./
+        if: always()
         with:
           jobName: "lint-and-format-check"
           stepName: "run tests"
