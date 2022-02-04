@@ -1,0 +1,30 @@
+name: OpenTelemetry Upload Trace Artifact
+description: Uploads a Github Artifact of Otel Traces
+author: Inception Health
+
+runs:
+  using: node16
+  main: dist/index.js
+
+inputs:
+  jobName:
+    description: The name of the Job that produced the file to upload
+    required: true
+  stepName:
+    description: The name of the Step that produced the file to upload
+    required: true
+  path:
+    description: The path to the file to Upload
+    required: true
+  type:
+    description: "The type of artifact to upload. Must be: junit"
+    required: false
+    default: "junit"
+  githubToken:
+    description: "The Github Token for the repo"
+    required: false
+    default: ${{ secrets.GITHUB_TOKEN	}}
+
+branding:
+  icon: "upload"
+  color: "blue"
