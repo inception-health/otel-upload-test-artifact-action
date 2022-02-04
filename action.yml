@@ -23,7 +23,7 @@ inputs:
   githubToken:
     description: "The Github Token for the repo"
     required: false
-    default: ${{ secrets.GITHUB_TOKEN	}}
+    default: ${{ env.GITHUB_TOKEN	}}
 
 branding:
   icon: "upload"

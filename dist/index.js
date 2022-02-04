@@ -157,6 +157,7 @@ async function run() {
             });
         }
         await provider.forceFlush();
+        core.info(`Upload OTLP Trace Log`);
         await (0, github_1.uploadTraceLogArtifact)({
             jobName,
             stepName,

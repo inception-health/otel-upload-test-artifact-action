@@ -63,6 +63,7 @@ export async function run() {
 
     await provider.forceFlush();
 
+    core.info(`Upload OTLP Trace Log`);
     await uploadTraceLogArtifact({
       jobName,
       stepName,
