@@ -205,7 +205,12 @@ export function traceTestCase({
   );
   try {
     let code: SpanStatusCode = SpanStatusCode.OK;
-    if (testCase.status !== "PASS") {
+    if (
+      /* istanbul ignore next */ (testCase.status &&
+        testCase.status !== "PASS") ||
+      (testCase.error && testCase.error.length > 0) ||
+      (testCase.failure && testCase.failure.length > 0)
+    ) {
       code = SpanStatusCode.ERROR;
     }
     span.setStatus({ code });

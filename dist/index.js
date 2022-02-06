@@ -354,7 +354,11 @@ function traceTestCase({ testCase, parentContext, parentSpan, startTime, tracer,
     }, ctx);
     try {
         let code = api_1.SpanStatusCode.OK;
-        if (testCase.status !== "PASS") {
+        if (
+        /* istanbul ignore next */ (testCase.status &&
+            testCase.status !== "PASS") ||
+            (testCase.error && testCase.error.length > 0) ||
+            (testCase.failure && testCase.failure.length > 0)) {
             code = api_1.SpanStatusCode.ERROR;
         }
         span.setStatus({ code });

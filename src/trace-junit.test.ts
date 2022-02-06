@@ -86,11 +86,8 @@ describe("traceJunitArtifact", () => {
       expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
       expect(s.endTime[1]).toBeGreaterThanOrEqual(s.startTime[1]);
       expect(s.status).toBeDefined();
-      if (s.status.code === SpanStatusCode.ERROR) {
-        expect(s.attributes.error).toEqual(true);
-      } else {
-        expect(s.attributes.error).toBeFalsy();
-      }
+      expect(s.attributes.error).toEqual(false);
+      expect(s.status.code).not.toEqual(SpanStatusCode.ERROR);
     });
   });
 
@@ -116,11 +113,8 @@ describe("traceJunitArtifact", () => {
       expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
       expect(s.endTime[1]).toBeGreaterThanOrEqual(s.startTime[1]);
       expect(s.status).toBeDefined();
-      if (s.status.code === SpanStatusCode.ERROR) {
-        expect(s.attributes.error).toEqual(true);
-      } else {
-        expect(s.attributes.error).toBeFalsy();
-      }
+      expect(s.attributes.error).toEqual(false);
+      expect(s.status.code).not.toEqual(SpanStatusCode.ERROR);
     });
   });
 
