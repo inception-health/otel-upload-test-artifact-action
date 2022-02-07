@@ -11,13 +11,6 @@ import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
 import { mock, mockDeep } from "jest-mock-extended";
 import * as artifact from "@actions/artifact";
 
-type ListWorkflowRunArtifactsResponse =
-  RestEndpointMethodTypes["actions"]["listWorkflowRunArtifacts"]["response"];
-type DownloadArtifactResponse =
-  RestEndpointMethodTypes["actions"]["downloadArtifact"]["response"];
-type WorkflowArtifact =
-  ListWorkflowRunArtifactsResponse["data"]["artifacts"][0];
-
 describe("github.ts", () => {
   let mockContext: Context;
   let mockOctokit: Octokit;

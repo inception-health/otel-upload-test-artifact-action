@@ -9,12 +9,12 @@
     "lint:ci": "eslint .",
     "format:fix": "prettier --write .",
     "format:ci": "prettier --check .",
-    "prebuild": "rm -fr lib || true",
+    "prebuild": "rimraf lib",
     "build": "tsc",
     "package": "npm run build && ncc build --source-map --license licenses.txt",
-    "test": "NODE_ENV=test DOTENV_CONFIG_PATH=./.env.test jest",
-    "test:watch": "NODE_ENV=test DOTENV_CONFIG_PATH=./.env.test jest --watch",
-    "test:ci": "NODE_ENV=test DOTENV_CONFIG_PATH=./.env.test jest --collect-coverage -ci"
+    "test": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=./.env.test jest",
+    "test:watch": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=./.env.test jest --watch",
+    "test:ci": "cross-env NODE_ENV=test jest --collect-coverage -ci"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
     "@vercel/ncc": "^0.31.1",
+    "cross-env": "^7.0.3",
     "dotenv": "^14.3.2",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
@@ -50,6 +51,7 @@
     "jest-junit": "^13.0.0",
     "jest-mock-extended": "^2.0.4",
     "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.1.2",
     "ttypescript": "^1.5.13",
     "typescript": "^4.5.4"

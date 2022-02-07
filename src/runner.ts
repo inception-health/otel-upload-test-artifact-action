@@ -1,7 +1,7 @@
 import * as github from "@actions/github";
 import * as artifact from "@actions/artifact";
 import * as core from "@actions/core";
-import { context, ROOT_CONTEXT, trace } from "@opentelemetry/api";
+import { trace } from "@opentelemetry/api";
 import { createTracerProvider } from "./trace-provider";
 import { traceJunitArtifact } from "./trace-junit";
 import { getWorkflowRunStep, uploadTraceLogArtifact } from "./github";
