@@ -1,7 +1,6 @@
 import { createTracerProvider } from "./trace-provider";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { BasicTracerProvider } from "@opentelemetry/sdk-trace-base";
-import { mock } from "jest-mock-extended";
 import * as fs from "fs";
 import * as path from "path";
 
