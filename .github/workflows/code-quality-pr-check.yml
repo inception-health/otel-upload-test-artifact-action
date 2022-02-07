@@ -38,10 +38,6 @@ jobs:
           cache: "npm"
       - name: Install Dependencies
         run: npm ci --ignore-scripts
-      - name: lint
-        run: npm run lint:ci
-      - name: format check
-        run: npm run format:ci
       - name: run tests
         run: npm run test:ci
       - uses: ./
