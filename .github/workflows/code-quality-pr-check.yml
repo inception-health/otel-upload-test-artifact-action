@@ -28,13 +28,13 @@ jobs:
         run: npm run lint:ci
       - name: format check
         run: npm run format:ci
-      - name: "run tests - ${{ matrix.os }}"
+      - name: run tests
         run: npm run test:ci
       - uses: ./
         if: always()
         with:
-          jobName: "lint-and-format-check"
-          stepName: "run tests - ${{ matrix.os }}"
+          jobName: "lint-and-format-check (${{ matrix.os }})"
+          stepName: "run tests"
           path: "junit.xml"
           type: "junit"
           githubToken: ${{ secrets.GITHUB_TOKEN }}
