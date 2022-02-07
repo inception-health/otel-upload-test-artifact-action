@@ -107,7 +107,7 @@ describe("traceJunitArtifact", () => {
     // expect(spans).toMatchSnapshot("trace-junit-testsuite-pass");
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();
-      expect(Object.keys(s.attributes).length).toBeGreaterThan(1000);
+      expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
       expect(s.endTime).toBeDefined();
       expect(s.startTime).toBeDefined();
       expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
