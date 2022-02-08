@@ -1,6 +1,6 @@
 {
   "name": "otel-upload-test-artifact-action",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Action that Uploads OTLP log file to GH Artifact",
   "main": "lib/index.js",
   "scripts": {
