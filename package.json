@@ -61,5 +61,13 @@
       "prettier --write .",
       "eslint --cache --fix ."
     ]
+  },
+  "jest-junit": {
+    "suiteNameTemplate": "{filepath}",
+    "titleTemplate": "{title}",
+    "ancestorSeparator": " ❯ ",
+    "classNameTemplate": "{classname}",
+    "includeConsoleOutput": "true",
+    "reportTestSuiteErrors": "true"
   }
 }
