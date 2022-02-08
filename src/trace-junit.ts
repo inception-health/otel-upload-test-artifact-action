@@ -8,6 +8,7 @@ import {
 } from "@opentelemetry/api";
 import { parse, TestCase, TestSuite, TestSuites } from "junit2json";
 import * as fs from "fs";
+import * as github from "@actions/github";
 
 export type TraceJunitArtifactParams = {
   trace: TraceAPI;
@@ -124,6 +125,7 @@ export function traceTestSuite({
         "test.package": testSuite.package,
         "test.system.out": testSuite["system-out"],
         "test.system.err": testSuite["system-err"],
+        "test.html_url": `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${testSuite.name}`,
       },
     },
     ctx

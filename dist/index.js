@@ -222,6 +222,7 @@ exports.traceTestCase = exports.traceTestSuite = exports.traceJunitArtifact = vo
 const api_1 = __nccwpck_require__(5163);
 const junit2json_1 = __nccwpck_require__(8027);
 const fs = __importStar(__nccwpck_require__(5747));
+const github = __importStar(__nccwpck_require__(5438));
 async function traceJunitArtifact({ trace, tracer, path, startTime, }) {
     const xmlString = fs.readFileSync(path, { encoding: "utf-8" });
     const result = await (0, junit2json_1.parse)(xmlString);
@@ -300,6 +301,7 @@ function traceTestSuite({ testSuite, trace, tracer, startTime, parentSpan, paren
             "test.package": testSuite.package,
             "test.system.out": testSuite["system-out"],
             "test.system.err": testSuite["system-err"],
+            "test.html_url": `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${testSuite.name}`,
         },
     }, ctx);
     let code = api_1.SpanStatusCode.OK;
