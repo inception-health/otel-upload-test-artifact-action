@@ -60,6 +60,42 @@ jobs:
           runId: ${{ github.event.workflow_run.id }}
 ```
 
+### With Matrix Strategy
+
+When using this action with a Matrix strategy you will need to append the matrix outputs to the `jobName` input argument surrounded by parenthesis. Tip: if you struggle to get the right formatting look at workflow run in `Actions` and see what the display name is for the matrix builds.
+
+```yaml
+name: "code quality PR check"
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+      - name: lint
+        run: npm run lint:ci
+      - name: run tests
+        run: npm run test:ci
+      - uses: inception-health/otel-upload-test-artifact-action@latest
+        if: always()
+        with:
+          jobName: "lint-and-test"
+          stepName: "run tests (${{ matrix.os }})"
+          path: "junit.xml"
+          type: "junit"
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ## Action Inputs
 
 | name     | description                                                    | required | default |
