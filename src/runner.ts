@@ -58,6 +58,7 @@ export async function run() {
         tracer,
         path,
         startTime,
+        baseHtmlUrl: `${ghContext.serverUrl}/${ghContext.repo.owner}/${ghContext.repo.repo}`,
       });
     }
 
