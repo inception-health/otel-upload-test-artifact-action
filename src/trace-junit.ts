@@ -9,6 +9,7 @@ import {
 import { parse, TestCase, TestSuite, TestSuites } from "junit2json";
 import * as fs from "fs";
 import * as glob from "@actions/glob";
+import * as core from "@actions/core";
 
 export type TraceJunitArtifactParams = {
   trace: TraceAPI;
@@ -40,9 +41,11 @@ export async function traceJunitArtifact({
     },
     ctx
   );
-
+  let numFiles = 0;
   try {
     for await (const file of globber.globGenerator()) {
+      core.debug(`Tracing file: ${file}`);
+      numFiles++;
       const xmlString = fs.readFileSync(file, { encoding: "utf-8" });
       const document = await parse(xmlString);
 
@@ -81,6 +84,7 @@ export async function traceJunitArtifact({
       }
     }
   } finally {
+    core.debug(`Traced ${numFiles} Files`);
     span.setStatus({ code });
     span.setAttribute("error", code === SpanStatusCode.ERROR);
     const endTime = new Date(startTime);
@@ -111,6 +115,8 @@ export function traceTestSuites({
   startTime,
   baseHtmlUrl,
 }: TraceTestSuitesParams): TraceTestSuitesResponse {
+  /* istanbul ignore next */
+  core.debug(`Tracing TestSuites<${testSuites.name || "Undefined"}>`);
   const ctx = trace.setSpan(parentContext, parentSpan);
   const span = tracer.startSpan(
     /* istanbul ignore next */
@@ -184,6 +190,7 @@ export function traceTestSuite({
   parentContext,
   baseHtmlUrl,
 }: TraceTestSuiteParams): TraceTestSuiteResponse {
+  core.debug(`Tracing TestSuite<${testSuite.name}>`);
   const ctx = trace.setSpan(parentContext, parentSpan);
   const span = tracer.startSpan(
     testSuite.name,
@@ -267,6 +274,7 @@ export function traceTestCase({
   tracer,
   trace,
 }: TraceTestCaseParams): number {
+  core.debug(`Tracing TestCase<${testCase.name}>`);
   const ctx = trace.setSpan(parentContext, parentSpan);
   const span = tracer.startSpan(
     testCase.name,

@@ -224,6 +224,7 @@ const api_1 = __nccwpck_require__(5163);
 const junit2json_1 = __nccwpck_require__(8027);
 const fs = __importStar(__nccwpck_require__(5747));
 const glob = __importStar(__nccwpck_require__(8090));
+const core = __importStar(__nccwpck_require__(2186));
 async function traceJunitArtifact({ trace, tracer, path, startTime, baseHtmlUrl, }) {
     const globber = await glob.create(path, { matchDirectories: false });
     let endTimeSec = 0;
@@ -237,8 +238,11 @@ async function traceJunitArtifact({ trace, tracer, path, startTime, baseHtmlUrl,
         },
         root: true,
     }, ctx);
+    let numFiles = 0;
     try {
         for await (const file of globber.globGenerator()) {
+            core.debug(`Tracing file: ${file}`);
+            numFiles++;
             const xmlString = fs.readFileSync(file, { encoding: "utf-8" });
             const document = await (0, junit2json_1.parse)(xmlString);
             if ("testcase" in document) {
@@ -278,6 +282,7 @@ async function traceJunitArtifact({ trace, tracer, path, startTime, baseHtmlUrl,
         }
     }
     finally {
+        core.debug(`Traced ${numFiles} Files`);
         span.setStatus({ code });
         span.setAttribute("error", code === api_1.SpanStatusCode.ERROR);
         const endTime = new Date(startTime);
@@ -287,6 +292,8 @@ async function traceJunitArtifact({ trace, tracer, path, startTime, baseHtmlUrl,
 }
 exports.traceJunitArtifact = traceJunitArtifact;
 function traceTestSuites({ trace, tracer, parentContext, parentSpan, testSuites, startTime, baseHtmlUrl, }) {
+    /* istanbul ignore next */
+    core.debug(`Tracing TestSuites<${testSuites.name || "Undefined"}>`);
     const ctx = trace.setSpan(parentContext, parentSpan);
     const span = tracer.startSpan(
     /* istanbul ignore next */
@@ -330,6 +337,7 @@ function traceTestSuites({ trace, tracer, parentContext, parentSpan, testSuites,
 }
 exports.traceTestSuites = traceTestSuites;
 function traceTestSuite({ testSuite, trace, tracer, startTime, parentSpan, parentContext, baseHtmlUrl, }) {
+    core.debug(`Tracing TestSuite<${testSuite.name}>`);
     const ctx = trace.setSpan(parentContext, parentSpan);
     const span = tracer.startSpan(testSuite.name, {
         startTime,
@@ -387,6 +395,7 @@ function traceTestSuite({ testSuite, trace, tracer, startTime, parentSpan, paren
 }
 exports.traceTestSuite = traceTestSuite;
 function traceTestCase({ testCase, parentContext, parentSpan, startTime, tracer, trace, }) {
+    core.debug(`Tracing TestCase<${testCase.name}>`);
     const ctx = trace.setSpan(parentContext, parentSpan);
     const span = tracer.startSpan(testCase.name, {
         startTime,
