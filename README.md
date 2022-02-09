@@ -96,6 +96,39 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### Using Glob pattern matching
+
+You can target multiple test reports using [Glob filter pattern syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet). This will allow you to trace test reports that are segmented into different files by Test Suite.
+
+```yaml
+name: "code quality PR check"
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+      - name: lint
+        run: npm run lint:ci
+      - name: run tests
+        run: npm run test:ci
+      - uses: inception-health/otel-upload-test-artifact-action@latest
+        if: always()
+        with:
+          jobName: "lint-and-test"
+          stepName: "run tests"
+          path: "junit-reports/*.xml"
+          type: "junit"
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ## Action Inputs
 
 | name     | description                                                    | required | default |
