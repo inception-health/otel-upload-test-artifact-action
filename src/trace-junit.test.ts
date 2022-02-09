@@ -73,11 +73,12 @@ describe("traceJunitArtifact", () => {
       tracer,
       startTime,
       path: junitFilePath,
+      baseHtmlUrl: "https://example.com",
     });
 
     const spans = memoryExporter.getFinishedSpans();
-    expect(spans.length).toEqual(8);
-    // expect(spans).toMatchSnapshot("trace-junit-testsuites-pass");
+    expect(spans.length).toEqual(9);
+
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();
       expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
@@ -99,12 +100,13 @@ describe("traceJunitArtifact", () => {
       trace,
       tracer,
       startTime,
+      baseHtmlUrl: "https://example.com",
       path: junitFilePath,
     });
 
     const spans = memoryExporter.getFinishedSpans();
     expect(spans.length).toEqual(6);
-    // expect(spans).toMatchSnapshot("trace-junit-testsuite-pass");
+
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();
       expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
@@ -118,8 +120,12 @@ describe("traceJunitArtifact", () => {
     });
   });
 
-  it("test failed junit spans match snapshot", async () => {
-    const junitFilePath = path.join("src", "__assets__", "junit-failed.xml");
+  it("test testsuites failed", async () => {
+    const junitFilePath = path.join(
+      "src",
+      "__assets__",
+      "junit-testsuites-failed.xml"
+    );
     const startTime = new Date("2022-02-01T18:37:11");
 
     await traceJunitArtifact({
@@ -127,11 +133,77 @@ describe("traceJunitArtifact", () => {
       tracer,
       startTime,
       path: junitFilePath,
+      baseHtmlUrl: "https://example.com",
     });
 
     const spans = memoryExporter.getFinishedSpans();
-    expect(spans.length).toEqual(13);
-    // expect(spans).toMatchSnapshot("trace-junit-error");
+    expect(spans.length).toEqual(14);
+
+    spans.forEach((s) => {
+      expect(s.attributes).toBeDefined();
+      expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
+      expect(s.endTime).toBeDefined();
+      expect(s.startTime).toBeDefined();
+      expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
+      expect(s.endTime[1]).toBeGreaterThanOrEqual(s.startTime[1]);
+      expect(s.status).toBeDefined();
+      if (s.status.code === SpanStatusCode.ERROR) {
+        expect(s.attributes.error).toEqual(true);
+      } else {
+        expect(s.attributes.error).toBeFalsy();
+      }
+    });
+  });
+
+  it("test testsuite failed", async () => {
+    const junitFilePath = path.join(
+      "src",
+      "__assets__",
+      "junit-testsuite-failed.xml"
+    );
+    const startTime = new Date("2022-02-01T18:37:11");
+
+    await traceJunitArtifact({
+      trace,
+      tracer,
+      startTime,
+      path: junitFilePath,
+      baseHtmlUrl: "https://example.com",
+    });
+
+    const spans = memoryExporter.getFinishedSpans();
+    expect(spans.length).toEqual(7);
+
+    spans.forEach((s) => {
+      expect(s.attributes).toBeDefined();
+      expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
+      expect(s.endTime).toBeDefined();
+      expect(s.startTime).toBeDefined();
+      expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
+      expect(s.endTime[1]).toBeGreaterThanOrEqual(s.startTime[1]);
+      expect(s.status).toBeDefined();
+      if (s.status.code === SpanStatusCode.ERROR) {
+        expect(s.attributes.error).toEqual(true);
+      } else {
+        expect(s.attributes.error).toBeFalsy();
+      }
+    });
+  });
+
+  it("test glob path", async () => {
+    const junitFilePath = path.join("src", "__assets__", "*.xml");
+    const startTime = new Date("2022-02-01T18:37:11");
+
+    await traceJunitArtifact({
+      trace,
+      tracer,
+      startTime,
+      path: junitFilePath,
+      baseHtmlUrl: "https://example.com",
+    });
+
+    const spans = memoryExporter.getFinishedSpans();
+    expect(spans.length).toEqual(33);
 
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();

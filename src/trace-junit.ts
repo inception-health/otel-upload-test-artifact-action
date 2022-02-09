@@ -8,38 +8,33 @@ import {
 } from "@opentelemetry/api";
 import { parse, TestCase, TestSuite, TestSuites } from "junit2json";
 import * as fs from "fs";
-import * as github from "@actions/github";
+import * as glob from "@actions/glob";
 
 export type TraceJunitArtifactParams = {
   trace: TraceAPI;
   tracer: Tracer;
   startTime: Date;
   path: string;
+  baseHtmlUrl: string;
 };
-
 export async function traceJunitArtifact({
   trace,
   tracer,
   path,
   startTime,
+  baseHtmlUrl,
 }: TraceJunitArtifactParams) {
-  const xmlString = fs.readFileSync(path, { encoding: "utf-8" });
-  const result = await parse(xmlString);
-  let endTimeSec: number = result.time || 0;
+  const globber = await glob.create(path, { matchDirectories: false });
+  let endTimeSec = 0;
+  let code = SpanStatusCode.OK;
   const ctx = ROOT_CONTEXT;
   const span = tracer.startSpan(
-    result.name || "Junit Test Runs",
+    "Junit Test Runs",
     {
       startTime,
       attributes: {
         "test.source": "junit",
         "test.scope": "Run",
-        "test.name": result.name || "Junit Test Runs",
-        "test.tests": result.tests,
-        "test.failures": result.failures,
-        "test.errors": result.errors,
-        "test.disabled": result.disabled,
-        "tests.time": result.time,
       },
       root: true,
     },
@@ -47,30 +42,107 @@ export async function traceJunitArtifact({
   );
 
   try {
-    let code = SpanStatusCode.OK;
-    /* istanbul ignore next */
-    if (
-      (result.errors && result.errors > 0) ||
-      (result.failures && result.failures > 0)
-    ) {
-      code = SpanStatusCode.ERROR;
+    for await (const file of globber.globGenerator()) {
+      const xmlString = fs.readFileSync(file, { encoding: "utf-8" });
+      const document = await parse(xmlString);
+
+      if ("testcase" in document) {
+        const testSuite: TestSuite = document;
+        const testSuiteResponse = traceTestSuite({
+          testSuite,
+          parentContext: ctx,
+          parentSpan: span,
+          trace,
+          tracer,
+          baseHtmlUrl,
+          startTime: new Date(testSuite.timestamp || startTime),
+        });
+        endTimeSec = Math.max(endTimeSec, testSuiteResponse.durationSec);
+        code =
+          testSuiteResponse.code === SpanStatusCode.ERROR
+            ? testSuiteResponse.code
+            : code;
+      } else if ("testsuite" in document) {
+        const testSuites: TestSuites = document;
+        const testSuitesResponse = traceTestSuites({
+          testSuites,
+          parentContext: ctx,
+          parentSpan: span,
+          trace,
+          tracer,
+          baseHtmlUrl,
+          startTime: new Date(startTime),
+        });
+        endTimeSec = Math.max(endTimeSec, testSuitesResponse.durationSec);
+        code =
+          testSuitesResponse.code === SpanStatusCode.ERROR
+            ? testSuitesResponse.code
+            : code;
+      }
     }
+  } finally {
     span.setStatus({ code });
     span.setAttribute("error", code === SpanStatusCode.ERROR);
-    if ("testcase" in result) {
-      const testSuite: TestSuite = result;
-      traceTestSuite({
-        testSuite,
-        parentContext: ctx,
-        parentSpan: span,
-        trace,
-        tracer,
-        startTime: new Date(testSuite.timestamp || startTime),
-      });
-    } else if ("testsuite" in result) {
-      const testSuites: TestSuites = result;
+    const endTime = new Date(startTime);
+    endTime.setMilliseconds(startTime.getMilliseconds() + endTimeSec * 1000);
+    span.end(endTime);
+  }
+}
 
-      const testSuiteTimes = testSuites.testsuite.map((testSuite) =>
+export type TraceTestSuitesParams = {
+  trace: TraceAPI;
+  tracer: Tracer;
+  parentSpan: Span;
+  parentContext: Context;
+  startTime: Date;
+  testSuites: TestSuites;
+  baseHtmlUrl: string;
+};
+export type TraceTestSuitesResponse = {
+  durationSec: number;
+  code: SpanStatusCode;
+};
+export function traceTestSuites({
+  trace,
+  tracer,
+  parentContext,
+  parentSpan,
+  testSuites,
+  startTime,
+  baseHtmlUrl,
+}: TraceTestSuitesParams): TraceTestSuitesResponse {
+  const ctx = trace.setSpan(parentContext, parentSpan);
+  const span = tracer.startSpan(
+    /* istanbul ignore next */
+    testSuites.name || "Junit Test Suites",
+    {
+      startTime,
+      attributes: {
+        "test.tests": testSuites.tests,
+        "test.failures": testSuites.failures,
+        "test.errors": testSuites.errors,
+        "test.disabled": testSuites.disabled,
+        "tests.time": testSuites.time,
+      },
+    },
+    ctx
+  );
+
+  let code = SpanStatusCode.OK;
+  /* istanbul ignore next */
+  if (
+    (testSuites.errors && testSuites.errors > 0) ||
+    (testSuites.failures && testSuites.failures > 0)
+  ) {
+    code = SpanStatusCode.ERROR;
+  }
+  span.setStatus({ code });
+  span.setAttribute("error", code === SpanStatusCode.ERROR);
+
+  let endTimeSec = 0;
+  try {
+    const testSuiteTimes: number[] = testSuites.testsuite.map(
+      (testSuite) =>
         traceTestSuite({
           testSuite,
           parentContext: ctx,
@@ -78,10 +150,11 @@ export async function traceJunitArtifact({
           startTime: new Date(testSuite.timestamp || startTime),
           tracer,
           trace,
-        })
-      );
-      endTimeSec = endTimeSec || testSuiteTimes.reduce((r, i) => r + i, 0);
-    }
+          baseHtmlUrl,
+        }).durationSec
+    );
+    endTimeSec = testSuiteTimes.reduce((r, i) => r + i, 0);
+    return { durationSec: endTimeSec, code };
   } finally {
     const endTime = new Date(startTime);
     endTime.setMilliseconds(startTime.getMilliseconds() + endTimeSec * 1000);
@@ -96,6 +169,11 @@ export type TraceTestSuiteParams = {
   startTime: Date;
   tracer: Tracer;
   trace: TraceAPI;
+  baseHtmlUrl: string;
+};
+export type TraceTestSuiteResponse = {
+  durationSec: number;
+  code: SpanStatusCode;
 };
 export function traceTestSuite({
   testSuite,
@@ -104,7 +182,8 @@ export function traceTestSuite({
   startTime,
   parentSpan,
   parentContext,
-}: TraceTestSuiteParams): number {
+  baseHtmlUrl,
+}: TraceTestSuiteParams): TraceTestSuiteResponse {
   const ctx = trace.setSpan(parentContext, parentSpan);
   const span = tracer.startSpan(
     testSuite.name,
@@ -125,7 +204,7 @@ export function traceTestSuite({
         "test.package": testSuite.package,
         "test.system.out": testSuite["system-out"],
         "test.system.err": testSuite["system-err"],
-        "test.html_url": `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/${testSuite.name}`,
+        "test.html_url": `${baseHtmlUrl}/${testSuite.name}`,
       },
     },
     ctx
@@ -161,6 +240,8 @@ export function traceTestSuite({
     });
     testCasesTimeSec =
       testCasesTimeSec || testCasesTimes.reduce((r, i) => r + i, 0);
+
+    return { durationSec: testCasesTimeSec, code };
   } finally {
     const endTime = new Date(startTime);
     endTime.setMilliseconds(
@@ -168,7 +249,6 @@ export function traceTestSuite({
     );
     span.end(endTime);
   }
-  return testCasesTimeSec;
 }
 
 type TraceTestCaseParams = {
