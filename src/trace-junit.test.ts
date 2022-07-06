@@ -231,7 +231,7 @@ describe("traceJunitArtifact", () => {
     });
 
     const spans = memoryExporter.getFinishedSpans();
-    expect(spans.length).toEqual(33);
+    expect(spans.length).toEqual(37);
 
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();
