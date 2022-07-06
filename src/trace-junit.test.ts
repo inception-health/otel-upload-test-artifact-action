@@ -120,8 +120,8 @@ describe("traceJunitArtifact", () => {
     });
   });
 
-  it("test junit testsuites golang pass", async () => {
-    const junitFilePath = path.join("src", "__assets__", "junit-golang.xml");
+  it("test junit testsuite without testcases", async () => {
+    const junitFilePath = path.join("src", "__assets__", "junit-testuite-without-testcase.xml");
     const startTime = new Date("2022-01-22T04:45:30");
 
     await traceJunitArtifact({
