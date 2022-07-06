@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite tests="0" failures="0" time="0.000000" name="github.com/my-org/service-template/cmd/app" timestamp="2022-06-14T22:02:21Z">
+    <properties>
+      <property name="go.version" value="go1.18.3 linux/amd64"></property>
+    </properties>
+  </testsuite>
+  <testsuite tests="1" failures="0" time="0.008000" name="github.com/my-org/service-template/internal/nodetemplate" timestamp="2022-06-14T22:02:21Z">
+    <testcase classname="github.com/my-org/service-template/internal/nodetemplate" name="Test_New/succesfully_creates_client" time="0.000000"></testcase>
+  </testsuite>
+</testsuites>
