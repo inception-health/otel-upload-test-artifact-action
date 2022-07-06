@@ -121,7 +121,11 @@ describe("traceJunitArtifact", () => {
   });
 
   it("test junit testsuite without testcases", async () => {
-    const junitFilePath = path.join("src", "__assets__", "junit-testuite-without-testcase.xml");
+    const junitFilePath = path.join(
+      "src",
+      "__assets__",
+      "junit-testuite-without-testcase.xml"
+    );
     const startTime = new Date("2022-01-22T04:45:30");
 
     await traceJunitArtifact({
