@@ -89,8 +89,8 @@ jobs:
       - uses: inception-health/otel-upload-test-artifact-action@latest
         if: always()
         with:
-          jobName: "lint-and-test"
-          stepName: "run tests (${{ matrix.os }})"
+          jobName: "lint-and-test (${{ matrix.os }})"
+          stepName: "run tests"
           path: "junit.xml"
           type: "junit"
           githubToken: ${{ secrets.GITHUB_TOKEN }}
