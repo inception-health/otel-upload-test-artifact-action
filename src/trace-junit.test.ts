@@ -120,6 +120,38 @@ describe("traceJunitArtifact", () => {
     });
   });
 
+  it("test junit testsuite without testcases", async () => {
+    const junitFilePath = path.join(
+      "src",
+      "__assets__",
+      "junit-testuite-without-testcase.xml"
+    );
+    const startTime = new Date("2022-01-22T04:45:30");
+
+    await traceJunitArtifact({
+      trace,
+      tracer,
+      startTime,
+      path: junitFilePath,
+      baseHtmlUrl: "https://example.com",
+    });
+
+    const spans = memoryExporter.getFinishedSpans();
+    expect(spans.length).toEqual(5);
+
+    spans.forEach((s) => {
+      expect(s.attributes).toBeDefined();
+      expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
+      expect(s.endTime).toBeDefined();
+      expect(s.startTime).toBeDefined();
+      expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
+      expect(s.endTime[1]).toBeGreaterThanOrEqual(s.startTime[1]);
+      expect(s.status).toBeDefined();
+      expect(s.attributes.error).toEqual(false);
+      expect(s.status.code).not.toEqual(SpanStatusCode.ERROR);
+    });
+  });
+
   it("test testsuites failed", async () => {
     const junitFilePath = path.join(
       "src",
@@ -203,7 +235,7 @@ describe("traceJunitArtifact", () => {
     });
 
     const spans = memoryExporter.getFinishedSpans();
-    expect(spans.length).toEqual(33);
+    expect(spans.length).toEqual(37);
 
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();

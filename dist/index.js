@@ -370,7 +370,9 @@ function traceTestSuite({ testSuite, trace, tracer, startTime, parentSpan, paren
     let testCaseTime = new Date(startTime);
     let testCasesTimeSec = testSuite.time || 0;
     try {
-        const testCasesTimes = testSuite.testcase.map((testCase) => {
+        // there are cases when a testSuite exists without any testCases
+        // see https://github.com/windyroad/JUnit-Schema/blob/cfa434d4b8e102a8f55b8727b552a0063ee9044e/JUnit.xsd#L18-L24
+        const testCasesTimes = testSuite.testcase?.map((testCase) => {
             const testCaseTimeSec = traceTestCase({
                 testCase,
                 tracer,
@@ -383,8 +385,11 @@ function traceTestSuite({ testSuite, trace, tracer, startTime, parentSpan, paren
             testCaseTime.setMilliseconds(testCaseTime.getMilliseconds() + (testCase.time || testCaseTimeSec));
             return testCaseTimeSec;
         });
-        testCasesTimeSec =
-            testCasesTimeSec || testCasesTimes.reduce((r, i) => r + i, 0);
+        // If testSuite exists with testCases
+        if (testCasesTimes) {
+            testCasesTimeSec =
+                testCasesTimeSec || testCasesTimes.reduce((r, i) => r + i, 0);
+        }
         return { durationSec: testCasesTimeSec, code };
     }
     finally {
