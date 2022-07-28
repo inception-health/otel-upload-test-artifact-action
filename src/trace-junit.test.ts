@@ -9,6 +9,15 @@ import {
 import { IdGenerator } from "@opentelemetry/core";
 import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import * as core from "@actions/core";
+
+async function* wrapAsyncGen(
+  files: string[]
+): AsyncGenerator<string, void, unknown> {
+  for (const file of files) {
+    yield await Promise.resolve(file);
+  }
+}
 
 class TestIdGenerator implements IdGenerator {
   traceIdCounter: number;
@@ -35,6 +44,10 @@ describe("traceJunitArtifact", () => {
   let tracer: Tracer;
 
   beforeAll(() => {
+    // Mock @actions/core logging
+    jest.spyOn(core, "info").mockImplementation();
+    jest.spyOn(core, "debug").mockImplementation();
+
     memoryExporter = new InMemorySpanExporter();
     tracerProvider = new BasicTracerProvider({
       resource: new Resource({
@@ -57,6 +70,8 @@ describe("traceJunitArtifact", () => {
   });
 
   afterAll(() => {
+    // Restore
+    jest.restoreAllMocks();
     return tracerProvider.shutdown();
   });
 
@@ -72,7 +87,7 @@ describe("traceJunitArtifact", () => {
       trace,
       tracer,
       startTime,
-      path: junitFilePath,
+      filesGenerator: wrapAsyncGen([junitFilePath]),
       baseHtmlUrl: "https://example.com",
     });
 
@@ -101,7 +116,7 @@ describe("traceJunitArtifact", () => {
       tracer,
       startTime,
       baseHtmlUrl: "https://example.com",
-      path: junitFilePath,
+      filesGenerator: wrapAsyncGen([junitFilePath]),
     });
 
     const spans = memoryExporter.getFinishedSpans();
@@ -132,7 +147,7 @@ describe("traceJunitArtifact", () => {
       trace,
       tracer,
       startTime,
-      path: junitFilePath,
+      filesGenerator: wrapAsyncGen([junitFilePath]),
       baseHtmlUrl: "https://example.com",
     });
 
@@ -164,7 +179,7 @@ describe("traceJunitArtifact", () => {
       trace,
       tracer,
       startTime,
-      path: junitFilePath,
+      filesGenerator: wrapAsyncGen([junitFilePath]),
       baseHtmlUrl: "https://example.com",
     });
 
@@ -199,43 +214,12 @@ describe("traceJunitArtifact", () => {
       trace,
       tracer,
       startTime,
-      path: junitFilePath,
+      filesGenerator: wrapAsyncGen([junitFilePath]),
       baseHtmlUrl: "https://example.com",
     });
 
     const spans = memoryExporter.getFinishedSpans();
     expect(spans.length).toEqual(7);
-
-    spans.forEach((s) => {
-      expect(s.attributes).toBeDefined();
-      expect(Object.keys(s.attributes).length).toBeGreaterThan(0);
-      expect(s.endTime).toBeDefined();
-      expect(s.startTime).toBeDefined();
-      expect(s.endTime[0]).toBeGreaterThanOrEqual(s.startTime[0]);
-      expect(s.endTime[1]).toBeGreaterThanOrEqual(s.startTime[1]);
-      expect(s.status).toBeDefined();
-      if (s.status.code === SpanStatusCode.ERROR) {
-        expect(s.attributes.error).toEqual(true);
-      } else {
-        expect(s.attributes.error).toBeFalsy();
-      }
-    });
-  });
-
-  it("test glob path", async () => {
-    const junitFilePath = path.join("src", "__assets__", "*.xml");
-    const startTime = new Date("2022-02-01T18:37:11");
-
-    await traceJunitArtifact({
-      trace,
-      tracer,
-      startTime,
-      path: junitFilePath,
-      baseHtmlUrl: "https://example.com",
-    });
-
-    const spans = memoryExporter.getFinishedSpans();
-    expect(spans.length).toEqual(37);
 
     spans.forEach((s) => {
       expect(s.attributes).toBeDefined();

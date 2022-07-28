@@ -8,24 +8,22 @@ import {
 } from "@opentelemetry/api";
 import { parse, TestCase, TestSuite, TestSuites } from "junit2json";
 import * as fs from "fs";
-import * as glob from "@actions/glob";
 import * as core from "@actions/core";
 
 export type TraceJunitArtifactParams = {
   trace: TraceAPI;
   tracer: Tracer;
   startTime: Date;
-  path: string;
+  filesGenerator: AsyncGenerator<string, void, unknown>;
   baseHtmlUrl: string;
 };
 export async function traceJunitArtifact({
   trace,
   tracer,
-  path,
+  filesGenerator,
   startTime,
   baseHtmlUrl,
 }: TraceJunitArtifactParams) {
-  const globber = await glob.create(path, { matchDirectories: false });
   let endTimeSec = 0;
   let code = SpanStatusCode.OK;
   const ctx = ROOT_CONTEXT;
@@ -43,7 +41,7 @@ export async function traceJunitArtifact({
   );
   let numFiles = 0;
   try {
-    for await (const file of globber.globGenerator()) {
+    for await (const file of filesGenerator) {
       core.debug(`Tracing file: ${file}`);
       numFiles++;
       const xmlString = fs.readFileSync(file, { encoding: "utf-8" });

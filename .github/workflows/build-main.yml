@@ -62,4 +62,3 @@ jobs:
         with:
           token: "${{ secrets.BUILD_PAT }}"
           release-type: node
-          package-name: otel-upload-test-artifact-action
