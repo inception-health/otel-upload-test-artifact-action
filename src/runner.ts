@@ -15,6 +15,10 @@ export async function run() {
   const runId = ghContext.runId;
   const ghToken: string | undefined =
     core.getInput("githubToken") || process.env.GITHUB_TOKEN;
+  const serviceName =
+    core.getInput("otelServiceName") ||
+    process.env.OTEL_SERVICE_NAME ||
+    ghContext.workflow;
 
   if (!ghToken) {
     core.setFailed("Missing GITHUB_TOKEN secret");
@@ -28,7 +32,7 @@ export async function run() {
   const traceLogFilePath = "trace.log";
   const provider = createTracerProvider({
     traceLogFilePath,
-    serviceName: ghContext.workflow,
+    serviceName,
     serviceNamespace: `${ghContext.repo.owner}/${ghContext.repo.repo}`,
     serviceInstanceId: ghContext.sha,
     serviceVersion: "1.0.0",
