@@ -131,12 +131,13 @@ jobs:
 
 ## Action Inputs
 
-| name     | description                                                    | required | default |
-| -------- | -------------------------------------------------------------- | -------- | ------- |
-| jobName  | The name of the Job that produced the file to upload           | true     |         |
-| stepName | The name of the Step that produced the file to upload          | true     |         |
-| path     | The path to the file to Upload                                 | true     |         |
-| type     | The type of artifact to upload. Currently only supports, junit | false    | junit   |
+| name            | description                                                    | required | default |
+| --------------- | -------------------------------------------------------------- | -------- | ------- |
+| jobName         | The name of the Job that produced the file to upload           | true     |         |
+| stepName        | The name of the Step that produced the file to upload          | true     |         |
+| path            | The path to the file to Upload                                 | true     |         |
+| type            | The type of artifact to upload. Currently only supports, junit | false    | junit   |
+| otelServiceName | OpenTelemetry service name                                     | false    |         |
 
 ## Trace Unique Fields
 
