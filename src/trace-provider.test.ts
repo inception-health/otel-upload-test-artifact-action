@@ -136,7 +136,7 @@ describe("createTracerProvider", () => {
         "__assets__",
         "junit-testsuites-failed.xml"
       );
-      const startTime = new Date("2022-02-01T18:37:11");
+      const startTime = new Date("2022-02-01T18:37:11Z");
 
       const tracer = provider.getTracer("Trace Test Artifact");
 
