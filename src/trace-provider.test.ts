@@ -134,7 +134,7 @@ describe("createTracerProvider", () => {
       const junitFilePath = path.join(
         "src",
         "__assets__",
-        "junit-testsuites-failed.xml"
+        "junit-testsuites.xml"
       );
       const startTime = new Date("2022-02-01T18:37:11Z");
 
@@ -161,7 +161,7 @@ describe("createTracerProvider", () => {
         encoding: "utf8",
         flag: "r",
       });
-      expect(traceLog).toMatchSnapshot("trace-junit-testsuites-failed");
+      expect(traceLog).toMatchSnapshot("trace-junit-testsuites");
     });
   });
 });
