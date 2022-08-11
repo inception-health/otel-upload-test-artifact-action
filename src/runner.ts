@@ -1,6 +1,7 @@
 import * as github from "@actions/github";
 import * as artifact from "@actions/artifact";
 import * as core from "@actions/core";
+import * as glob from "@actions/glob";
 import { trace } from "@opentelemetry/api";
 import { createTracerProvider } from "./trace-provider";
 import { traceJunitArtifact } from "./trace-junit";
@@ -55,12 +56,14 @@ export async function run() {
       return;
     }
     const startTime = new Date(step.started_at);
+
+    const globber = await glob.create(path, { matchDirectories: false });
     core.info("Trace Test file");
     if (type === "junit") {
       await traceJunitArtifact({
         trace,
         tracer,
-        path,
+        filesGenerator: globber.globGenerator(),
         startTime,
         baseHtmlUrl: `${ghContext.serverUrl}/${ghContext.repo.owner}/${ghContext.repo.repo}`,
       });

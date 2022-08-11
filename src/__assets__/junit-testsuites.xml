@@ -10,7 +10,7 @@
     <testcase classname="createTracerProvider test active span processor" name="createTracerProvider test active span processor" time="0.003">
     </testcase>
   </testsuite>
-  <testsuite name="traceTestReportArtifact" errors="0" failures="0" skipped="0" timestamp="2022-01-22T04:45:33" time="0.178" tests="1">
+  <testsuite name="traceTestReportArtifact" errors="0" failures="0" skipped="0" timestamp="2022-01-22T04:45:33Z" time="0.178" tests="1">
     <testcase classname="traceTestReportArtifact test junit.xml" name="traceTestReportArtifact test junit.xml" time="0.001">
     </testcase>
   </testsuite>
