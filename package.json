@@ -28,7 +28,7 @@
     "@opentelemetry/resources": "^1.1.0",
     "@opentelemetry/sdk-trace-base": "^1.1.0",
     "@opentelemetry/semantic-conventions": "^1.1.0",
-    "axios": "^0.25.0",
+    "axios": "^1.6.0",
     "jszip": "^3.8.0",
     "junit2json": "^2.0.6",
     "opentelemetry-exporter-trace-otlp-file": "^0.1.1"
